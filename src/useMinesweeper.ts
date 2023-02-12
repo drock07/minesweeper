@@ -133,7 +133,16 @@ function useMinesweeper(gridSize: number = 10, numMines: number = 15) {
     state.gridSize
   )
 
-  return [cells, state.gameState, { revealCell, flagCell }, {}] as const
+  return [
+    cells,
+    {
+      gameState: state.gameState,
+      numMines: state.numMines,
+      gridSize: state.gridSize,
+    },
+    { revealCell, flagCell },
+    {},
+  ] as const
 }
 
 export default useMinesweeper

@@ -32,6 +32,39 @@ export function map2Dto1D(x: number, y: number, gridWidth: number): number {
   return gridWidth * y + x
 }
 
+export function forEachNeighbor(
+  index: number,
+  gridWidth: number,
+  callback: (index: number, x: number, y: number) => void
+): void {
+  const [x, y] = map1Dto2D(index, gridWidth)
+
+  // check top left
+  if (x > 0 && y > 0) callback(index - gridWidth - 1, x - 1, y - 1)
+
+  // check top middle
+  if (y > 0) callback(index - gridWidth, x, y - 1)
+
+  // check top right
+  if (x < gridWidth - 1 && y > 0) callback(index - gridWidth + 1, x + 1, y - 1)
+
+  // check left
+  if (x > 0) callback(index - 1, x - 1, y)
+
+  // check right
+  if (x < gridWidth - 1) callback(index + 1, x + 1, y)
+
+  // check bottom left
+  if (x > 0 && y < gridWidth - 1) callback(index + gridWidth - 1, x - 1, y + 1)
+
+  // check bottom middle
+  if (y < gridWidth - 1) callback(index + gridWidth, x, y + 1)
+
+  // check bottom right
+  if (x < gridWidth - 1 && y < gridWidth - 1)
+    callback(index + gridWidth + 1, x + 1, y + 1)
+}
+
 export function getNumberOfNeighborMines(
   index: number,
   grid: boolean[],
@@ -39,32 +72,9 @@ export function getNumberOfNeighborMines(
 ): number {
   let count = 0
 
-  const [x, y] = map1Dto2D(index, gridWidth)
-
-  // check top left
-  if (x > 0 && y > 0 && grid[index - gridWidth - 1]) count++
-
-  // check top middle
-  if (y > 0 && grid[index - gridWidth]) count++
-
-  // check top right
-  if (x < gridWidth - 1 && y > 0 && grid[index - gridWidth + 1]) count++
-
-  // check left
-  if (x > 0 && grid[index - 1]) count++
-
-  // check right
-  if (x < gridWidth - 1 && grid[index + 1]) count++
-
-  // check bottom left
-  if (x > 0 && y < gridWidth - 1 && grid[index + gridWidth - 1]) count++
-
-  // check bottom middle
-  if (y < gridWidth - 1 && grid[index + gridWidth]) count++
-
-  // check bottom right
-  if (x < gridWidth - 1 && y < gridWidth - 1 && grid[index + gridWidth + 1])
-    count++
+  forEachNeighbor(index, gridWidth, (i) => {
+    if (grid[i]) count++
+  })
 
   return count
 }

@@ -2,6 +2,7 @@ import { tv } from 'tailwind-variants'
 import useMinesweeper from './useMinesweeper'
 import Cell from './Cell'
 import { CellState, WinState } from './GameLogic/types'
+import { GiUnlitBomb } from 'react-icons/gi'
 
 function App() {
   const [cells, { gameState, numMines }, { revealCell, flagCell, chordCell }] =
@@ -18,7 +19,7 @@ function App() {
   )
 
   const boardClasses = tv({
-    base: 'grid aspect-square gap-1 overflow-hidden rounded-lg bg-white/20 p-3 shadow-2xl backdrop-blur-xl portrait:w-4/5 landscape:h-4/5',
+    base: 'grid gap-1 overflow-hidden rounded-lg bg-white/20 p-3 shadow-2xl backdrop-blur-xl col-start-2 row-start-3 portrait:w-[90vw] landscape:h-[75vh] aspect-square',
     variants: {
       gameState: {
         [WinState.NEW]: '',
@@ -31,17 +32,18 @@ function App() {
 
   return (
     <div
-      className='relative flex h-full w-full flex-col items-center justify-center gap-2 bg-cover bg-center landscape:flex-row'
+      className='relative grid h-full w-full grid-cols-[1fr_auto_1fr] grid-rows-[1fr_auto_auto_1fr] bg-cover bg-center'
       style={{
         backgroundImage: `url(${'https://images.unsplash.com/photo-1675208986290-a72414630bbe'})`,
       }}
     >
-      <div className='flex flex-row text-white portrait:w-4/5 landscape:h-4/5 landscape:flex-col'>
-        <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 p-2 font-bold shadow-2xl backdrop-blur-xl landscape:h-16 landscape:w-16 landscape:text-2xl'>
-          {numMines - numFlags}
+      <header className='col-start-2 row-start-2 mb-2 flex flex-row justify-between text-white'>
+        <div className='flex h-10 items-center justify-center rounded-lg bg-white/20 p-2 font-bold shadow-2xl backdrop-blur-xl landscape:h-16 landscape:text-2xl'>
+          <GiUnlitBomb className='mr-2 text-lg' /> {numMines - numFlags}
         </div>
-        {/* <div>{gameState}</div> */}
-      </div>
+        <div>{gameState}</div>
+      </header>
+      <div className='col-start-2 row-start-2'>middle</div>
       <div
         className={boardClasses({ gameState })}
         style={{

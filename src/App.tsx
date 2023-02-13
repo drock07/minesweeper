@@ -54,10 +54,8 @@ function App() {
             <Cell
               key={`${cell.x}-${cell.y}`}
               {...cell}
-              disabled={
-                gameState === WinState.WON || gameState === WinState.LOST
-              }
               onClick={() => revealCell(cell.x, cell.y)}
+              onDoubleClick={() => chordCell(cell.x, cell.y)}
               onAuxClick={(e) => {
                 if (e.button === 1) {
                   chordCell(cell.x, cell.y)

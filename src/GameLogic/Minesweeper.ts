@@ -14,20 +14,27 @@ class Minesweeper {
   }
 
   public static revealCell(state: GameState, x: number, y: number): void {
+    if (!state.isActive) return
     const cell = state.cells.get(x, y)
     if (cell.isHidden) {
       cell.state = CellState.REVEALED
+      cell.clicked = true
 
       if (!cell.isMine) {
         state.cells
           .getNeighbors(x, y)
           .forEach((neighbor) => this.floodFill(state, neighbor.x, neighbor.y))
+      } else {
+        state.cells.forEach((c) => {
+          if (c.isMine && c.isHidden) c.state = CellState.REVEALED
+        })
       }
       this.checkWinState(state)
     }
   }
 
   public static flagCell(state: GameState, x: number, y: number): void {
+    if (!state.isActive) return
     const cell = state.cells.get(x, y)
     if (cell.isFlagState) {
       cell.cycleFlagState()
@@ -36,6 +43,7 @@ class Minesweeper {
   }
 
   public static chordCell(state: GameState, x: number, y: number): void {
+    if (!state.isActive) return
     const cell = state.cells.get(x, y)
     const numFlaggedNeighbors = state.cells
       .getNeighbors(x, y)

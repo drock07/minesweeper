@@ -1,5 +1,8 @@
 import React from 'react'
 import { tv } from 'tailwind-variants'
+import { GiMineExplosion, GiUnlitBomb } from 'react-icons/gi'
+import { GrFlagFill } from 'react-icons/gr'
+import { BiQuestionMark } from 'react-icons/bi'
 import type { Cell as CellType } from './GameLogic/types'
 
 interface CellProps
@@ -9,9 +12,9 @@ interface CellProps
       HTMLButtonElement
     > {}
 
-function Cell({ x, y, state, isMine, adjacentMines, ...props }: CellProps) {
+function Cell({ state, isMine, clicked, adjacentMines, ...props }: CellProps) {
   const cellClasses = tv({
-    base: 'transition flex cursor-pointer items-center justify-center rounded md:rounded-lg bg-blue-400 text-white text-xl',
+    base: 'transition flex cursor-pointer items-center justify-center rounded md:rounded-lg bg-blue-400 text-xl',
     variants: {
       state: {
         HIDDEN: 'shadow-md',
@@ -19,15 +22,37 @@ function Cell({ x, y, state, isMine, adjacentMines, ...props }: CellProps) {
         FLAG_MINE: 'shadow-md',
         FLAG_QUESTION: 'shadow-md',
       },
+      isMine: {
+        true: '',
+      },
+      clicked: {
+        true: '',
+      },
     },
+    compoundVariants: [
+      {
+        state: 'REVEALED',
+        isMine: true,
+        clicked: true,
+        class: 'bg-red-400',
+      },
+    ],
   })
 
   return (
-    <button type='button' {...props} className={cellClasses({ state })}>
+    <button
+      type='button'
+      {...props}
+      className={cellClasses({ state, isMine, clicked })}
+    >
       {state === 'REVEALED' &&
-        (isMine ? 'B' : adjacentMines > 0 ? adjacentMines : '')}
-      {state === 'FLAG_MINE' && '!'}
-      {state === 'FLAG_QUESTION' && '?'}
+        isMine &&
+        (clicked ? <GiMineExplosion className='' /> : <GiUnlitBomb />)}
+      {state === 'REVEALED' &&
+        !isMine &&
+        (adjacentMines > 0 ? adjacentMines : '')}
+      {state === 'FLAG_MINE' && <GrFlagFill className='text-red-500' />}
+      {state === 'FLAG_QUESTION' && <BiQuestionMark />}
     </button>
   )
 }

@@ -16,6 +16,11 @@ class GameState {
   public get numCells(): number {
     return this.cells.length
   }
+  public get isActive(): boolean {
+    return (
+      this.winState === WinState.NEW || this.winState === WinState.IN_PROGRESS
+    )
+  }
 
   constructor(gridSize: number, numMines: number, seed?: string) {
     this.gridSize = gridSize

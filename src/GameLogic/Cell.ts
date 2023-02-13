@@ -9,19 +9,22 @@ class Cell implements CellInterface {
   public isMine: boolean = false
   public adjacentMines: number = 0
   public state: CellState = CellState.HIDDEN
+  public clicked: boolean = false
 
   constructor(
     x: number = 0,
     y: number = 0,
     isMine: boolean = false,
     adjacentMines: number = 0,
-    state: CellState = CellState.HIDDEN
+    state: CellState = CellState.HIDDEN,
+    clicked: boolean = false
   ) {
     this.x = x
     this.y = y
     this.isMine = isMine
     this.adjacentMines = adjacentMines
     this.state = state
+    this.clicked = clicked
   }
 
   public get isRevealed(): boolean {

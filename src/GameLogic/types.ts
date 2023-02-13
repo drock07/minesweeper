@@ -18,4 +18,5 @@ export interface Cell {
   isMine: boolean
   adjacentMines: number
   state: CellState
+  clicked: boolean
 }

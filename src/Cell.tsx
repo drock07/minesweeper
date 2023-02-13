@@ -1,6 +1,6 @@
 import React from 'react'
 import { tv } from 'tailwind-variants'
-import type { Cell as CellType } from './types'
+import type { Cell as CellType } from './GameLogic/types'
 
 interface CellProps
   extends CellType,

@@ -1,11 +1,11 @@
 import { tv } from 'tailwind-variants'
 import useMinesweeper from './useMinesweeper'
 import Cell from './Cell'
-import { CellState, GameState } from './types'
+import { CellState, WinState } from './GameLogic/types'
 
 function App() {
-  const [cells, { gameState, numMines }, { revealCell, flagCell }] =
-    useMinesweeper(10, 15)
+  const [cells, { gameState, numMines }, { revealCell, flagCell, chordCell }] =
+    useMinesweeper(10, 15, 'david')
 
   const numFlags = cells.reduce(
     (sum, row) =>
@@ -21,10 +21,10 @@ function App() {
     base: 'grid aspect-square gap-1 overflow-hidden rounded-lg bg-white/20 p-3 shadow-2xl backdrop-blur-xl portrait:w-4/5 landscape:h-4/5',
     variants: {
       gameState: {
-        [GameState.NEW]: '',
-        [GameState.IN_PROGRESS]: '',
-        [GameState.LOST]: 'bg-red-500/20',
-        [GameState.WON]: 'bg-green-500/20',
+        [WinState.NEW]: '',
+        [WinState.IN_PROGRESS]: '',
+        [WinState.LOST]: 'bg-red-500/20',
+        [WinState.WON]: 'bg-green-500/20',
       },
     },
   })
@@ -55,13 +55,17 @@ function App() {
               key={`${cell.x}-${cell.y}`}
               {...cell}
               disabled={
-                gameState === GameState.WON || gameState === GameState.LOST
+                gameState === WinState.WON || gameState === WinState.LOST
               }
               onClick={() => revealCell(cell.x, cell.y)}
-              onContextMenu={(e) => {
-                flagCell(cell.x, cell.y)
-                e.preventDefault()
+              onAuxClick={(e) => {
+                if (e.button === 1) {
+                  chordCell(cell.x, cell.y)
+                } else if (e.button === 2) {
+                  flagCell(cell.x, cell.y)
+                }
               }}
+              onContextMenu={(e) => e.preventDefault()}
             />
           ))
         )}

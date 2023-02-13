@@ -1,22 +1,7 @@
 import { useCallback } from 'react'
 import { useImmerReducer } from 'use-immer'
-import { GameState, CellState, type Cell } from './types'
-import {
-  getNextFlagState,
-  getNumberOfNeighborMines,
-  map1Dto2D,
-  map2Dto1D,
-  shuffle,
-  unflattenArray,
-} from './helpers'
-
-interface ReducerState {
-  grid: boolean[]
-  cellStates: CellState[]
-  gameState: GameState
-  gridSize: number
-  numMines: number
-}
+import Minesweeper from './GameLogic/Minesweeper'
+import GameState from './GameLogic/GameState'
 
 type Action =
   | {
@@ -29,70 +14,30 @@ type Action =
       x: number
       y: number
     }
+  | {
+      type: 'chord'
+      x: number
+      y: number
+    }
 
-function generateNewGameState(
-  gridSize: number,
-  numMines: number
-): ReducerState {
-  const grid = new Array(gridSize * gridSize).fill(false)
-
-  for (let i = 0; i < numMines; i++) {
-    grid[i] = true
-  }
-
-  shuffle(grid)
-
-  return {
-    grid,
-    cellStates: new Array(gridSize * gridSize).fill(CellState.HIDDEN),
-    gameState: GameState.NEW,
-    gridSize,
-    numMines,
-  }
-}
-
-function updateGameState(state: ReducerState): void {
-  // check for loss
-  const hasUncoveredMine = state.cellStates.some(
-    (cellstate, i) => cellstate === CellState.REVEALED && state.grid[i]
-  )
-  if (hasUncoveredMine) {
-    state.gameState = GameState.LOST
-    return
-  }
-
-  // check for win
-  const numRevealedCells = state.cellStates.reduce(
-    (sum, cellState) => sum + (cellState === CellState.REVEALED ? 1 : 0),
-    0
-  )
-
-  if (numRevealedCells === state.grid.length - state.numMines) {
-    state.gameState = GameState.WON
-    return
-  }
-
-  state.gameState = GameState.IN_PROGRESS
-}
-
-function useMinesweeper(gridSize: number = 10, numMines: number = 15) {
-  const [state, dispatch] = useImmerReducer<ReducerState, Action, null>(
+function useMinesweeper(
+  gridSize: number = 10,
+  numMines: number = 15,
+  seed?: string
+) {
+  const [state, dispatch] = useImmerReducer<GameState, Action, null>(
     (draft, action) => {
       switch (action.type) {
         case 'reveal': {
-          const index = map2Dto1D(action.x, action.y, draft.gridSize)
-          if (draft.cellStates[index] === CellState.HIDDEN) {
-            draft.cellStates[index] = CellState.REVEALED
-            updateGameState(draft)
-          }
+          Minesweeper.revealCell(draft, action.x, action.y)
           break
         }
         case 'flag': {
-          const index = map2Dto1D(action.x, action.y, draft.gridSize)
-          if (draft.cellStates[index] !== CellState.REVEALED) {
-            draft.cellStates[index] = getNextFlagState(draft.cellStates[index])
-            updateGameState(draft)
-          }
+          Minesweeper.flagCell(draft, action.x, action.y)
+          break
+        }
+        case 'chord': {
+          Minesweeper.chordCell(draft, action.x, action.y)
           break
         }
         default:
@@ -100,47 +45,47 @@ function useMinesweeper(gridSize: number = 10, numMines: number = 15) {
       }
     },
     null,
-    () => generateNewGameState(gridSize, numMines)
+    () => Minesweeper.createGameState(gridSize, numMines, seed)
   )
 
-  const revealCell = useCallback((x: number, y: number) => {
-    dispatch({
-      type: 'reveal',
-      x,
-      y,
-    })
-  }, [])
-
-  const flagCell = useCallback((x: number, y: number) => {
-    dispatch({
-      type: 'flag',
-      x,
-      y,
-    })
-  }, [])
-
-  const cells = unflattenArray(
-    state.grid.map<Cell>((value, i) => {
-      const [x, y] = map1Dto2D(i, state.gridSize)
-      return {
+  const revealCell = useCallback(
+    (x: number, y: number) =>
+      dispatch({
+        type: 'reveal',
         x,
         y,
-        isMine: value,
-        adjacentMines: getNumberOfNeighborMines(i, state.grid, state.gridSize),
-        state: state.cellStates[i],
-      }
-    }),
-    state.gridSize
+      }),
+    []
+  )
+
+  const flagCell = useCallback(
+    (x: number, y: number) =>
+      dispatch({
+        type: 'flag',
+        x,
+        y,
+      }),
+    []
+  )
+
+  const chordCell = useCallback(
+    (x: number, y: number) =>
+      dispatch({
+        type: 'chord',
+        x,
+        y,
+      }),
+    []
   )
 
   return [
-    cells,
+    state.cells.toNestedArray(),
     {
-      gameState: state.gameState,
+      gameState: state.winState,
       numMines: state.numMines,
       gridSize: state.gridSize,
     },
-    { revealCell, flagCell },
+    { revealCell, flagCell, chordCell },
     {},
   ] as const
 }

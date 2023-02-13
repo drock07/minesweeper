@@ -11,9 +11,11 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@types/seedrandom": "^3.0.4",
     "immer": "^9.0.19",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "seedrandom": "^3.0.5",
     "use-immer": "^0.8.1"
   },
   "devDependencies": {

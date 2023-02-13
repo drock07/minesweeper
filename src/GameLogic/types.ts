@@ -1,4 +1,4 @@
-export enum GameState {
+export enum WinState {
   NEW = 'NEW',
   IN_PROGRESS = 'IN_PROGRESS',
   LOST = 'LOST',
